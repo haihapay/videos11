@@ -3,12 +3,6 @@ export default async function handler(req, res) {
     try {
 
         res.setHeader("Access-Control-Allow-Origin", "*");
-        res.setHeader("Access-Control-Allow-Headers", "*");
-        res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
-
-        if (req.method === "OPTIONS") {
-            return res.status(200).end();
-        }
 
         const token = req.query.url;
 
@@ -43,7 +37,7 @@ export default async function handler(req, res) {
         } catch (e) {
             return res.status(400).json({
                 ok: false,
-                error: "Invalid JSON"
+                error: "JSON parse failed"
             });
         }
 
@@ -54,26 +48,16 @@ export default async function handler(req, res) {
             });
         }
 
-        let image = "";
-
-        const pos = videoUrl.indexOf("&img=");
-
-        if (pos !== -1) {
-            image = videoUrl.substring(pos + 5);
-            videoUrl = videoUrl.substring(0, pos);
-        }
-
         return res.status(200).json({
             ok: true,
-            url: videoUrl,
-            image
+            url: videoUrl
         });
 
     } catch (err) {
 
         return res.status(500).json({
             ok: false,
-            error: err.message || "Server crashed"
+            error: err.message
         });
     }
 }
