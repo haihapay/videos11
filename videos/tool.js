@@ -1,88 +1,51 @@
-export default async function handler(req, res) {
+const mp4 = document.getElementById("mp4");
+const img = document.getElementById("img");
+const output = document.getElementById("output");
 
-    res.removeHeader("X-Frame-Options");
+const btnGen = document.getElementById("btnGen");
+const btnCopy = document.getElementById("btnCopy");
 
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Headers", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
+// =======================
+// GENERATE CLEAN URL
+// =======================
+btnGen.onclick = () => {
 
-    if (req.method === "OPTIONS") {
-        return res.status(200).end();
+    const video = mp4.value.trim();
+    const poster = img.value.trim();
+
+    if (!video) {
+        alert("Missing video URL");
+        return;
     }
 
-    try {
+    // 👉 SIMPLE QUERY PARAM (NO BASE64, NO JSON)
+    const params = new URLSearchParams();
 
-        const token = req.query.url || "";
+    params.set("url", video);
 
-        if (!token) {
-            return res.status(400).json({
-                ok: false,
-                error: "Missing token"
-            });
-        }
-
-        // Hỗ trợ Base64 URL-safe
-        const base64 = token
-            .replace(/-/g, "+")
-            .replace(/_/g, "/");
-
-        const decoded = Buffer
-            .from(base64, "base64")
-            .toString("utf8");
-
-        let videoUrl = decoded;
-
-        // Hỗ trợ token JSON
-        if (decoded.trim().startsWith("{")) {
-
-            const obj = JSON.parse(decoded);
-
-            videoUrl = obj.u || obj.url || "";
-
-        }
-
-        if (!videoUrl) {
-
-            return res.status(400).json({
-                ok: false,
-                error: "Invalid video url"
-            });
-
-        }
-
-        // Tách poster
-        let image = "";
-
-        const pos = videoUrl.indexOf("&img=");
-
-        if (pos !== -1) {
-
-            image = videoUrl.substring(pos + 5);
-
-            videoUrl = videoUrl.substring(0, pos);
-
-        }
-
-        return res.status(200).json({
-
-            ok: true,
-
-            url: videoUrl,
-
-            image: image
-
-        });
-
-    } catch (e) {
-
-        return res.status(500).json({
-
-            ok: false,
-
-            error: e.message
-
-        });
-
+    if (poster) {
+        params.set("img", poster);
     }
 
-}
+    const apiUrl = "/api/tool?" + params.toString();
+
+    const iframe = `
+<iframe 
+    src="/player?${params.toString()}"
+    width="100%" 
+    height="500"
+    frameborder="0"
+    allowfullscreen>
+</iframe>`.trim();
+
+    output.value = iframe;
+};
+
+// =======================
+// COPY
+// =======================
+btnCopy.onclick = () => {
+    output.select();
+    document.execCommand("copy");
+    alert("Copied!");
+};
