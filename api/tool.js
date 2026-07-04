@@ -15,7 +15,7 @@ export default async function handler(req, res) {
         if (!token || typeof token !== "string") {
             return res.status(400).json({
                 ok: false,
-                error: "Missing or invalid token"
+                error: "Missing token"
             });
         }
 
@@ -27,28 +27,30 @@ export default async function handler(req, res) {
         } catch (e) {
             return res.status(400).json({
                 ok: false,
-                error: "Base64 decode failed"
+                error: "Decode failed"
             });
         }
 
-        let videoUrl = decoded;
+        let videoUrl = "";
 
         try {
             if (decoded.trim().startsWith("{")) {
                 const obj = JSON.parse(decoded);
                 videoUrl = obj.u || obj.url || "";
+            } else {
+                videoUrl = decoded;
             }
         } catch (e) {
             return res.status(400).json({
                 ok: false,
-                error: "JSON parse failed"
+                error: "Invalid JSON"
             });
         }
 
-        if (!videoUrl || typeof videoUrl !== "string") {
+        if (!videoUrl) {
             return res.status(400).json({
                 ok: false,
-                error: "Invalid video url"
+                error: "Empty video url"
             });
         }
 
@@ -64,14 +66,14 @@ export default async function handler(req, res) {
         return res.status(200).json({
             ok: true,
             url: videoUrl,
-            image: image
+            image
         });
 
-    } catch (e) {
+    } catch (err) {
 
         return res.status(500).json({
             ok: false,
-            error: e.message || "Server error"
+            error: err.message || "Server crashed"
         });
     }
 }
