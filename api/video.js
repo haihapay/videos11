@@ -74,7 +74,7 @@ btnGen.addEventListener("click",()=>{
 
     const player=
 
-    "https://video-three-liard.vercel.app/player?url="+token;
+    "https://videos-eight-gray.vercel.app/api/player?url="+token;
 
     output.value=
 `<div class="player-wrapper">
