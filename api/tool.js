@@ -55,7 +55,18 @@ export default function handler(req, res) {
                     videoUrl = decoded.substring(0, imgIndex);
 
                 } else {
-                    videoUrl = decoded;
+                   let videoUrl = decoded;
+let image = "";
+
+// 🔥 MUST: tách img trước khi return
+const imgIndex = videoUrl.indexOf("&img=");
+
+if (imgIndex !== -1) {
+
+    image = videoUrl.substring(imgIndex + 5);
+    videoUrl = videoUrl.substring(0, imgIndex);
+
+}
                 }
             }
 
