@@ -1,142 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Video Player Generator</title>
-
+<title>Video Tool Clean</title>
 <link rel="stylesheet" href="/css/style.css">
-
 </head>
 
 <body class="tool-page">
 
 <div class="box">
 
-    <h2>🎬 Video Player Generator</h2>
+    <h2>🎬 Video Tool (Clean)</h2>
 
-    <div class="form-group">
+    <input id="mp4" placeholder="MP4 URL">
+    <input id="img" placeholder="Poster URL (optional)">
 
-        <label for="mp4">MP4 Video URL</label>
+    <button id="btnGen">Generate</button>
+    <button id="btnCopy">Copy</button>
 
-        <input
-            id="mp4"
-            type="text"
-            placeholder="https://example.com/video.mp4">
-
-    </div>
-
-    <div class="form-group">
-
-        <label for="img">Poster Image URL (Optional)</label>
-
-        <input
-            id="img"
-            type="text"
-            placeholder="https://example.com/poster.jpg">
-
-    </div>
-
-    <div class="buttons">
-
-        <button id="btnGen" class="gen">Generate</button>
-        <button id="btnCopy" class="copy">Copy</button>
-        <button id="btnReset" class="reset">Reset</button>
-
-    </div>
-
-    <div class="result">
-
-        <label for="output">Embed Code</label>
-
-        <textarea
-            id="output"
-            readonly
-            spellcheck="false"
-            placeholder="Generated iframe code will appear here..."></textarea>
-
-    </div>
+    <textarea id="output" readonly></textarea>
 
 </div>
 
-<script>
-const mp4Input = document.getElementById("mp4");
-const imgInput = document.getElementById("img");
-const output = document.getElementById("output");
-
-const btnGen = document.getElementById("btnGen");
-const btnCopy = document.getElementById("btnCopy");
-const btnReset = document.getElementById("btnReset");
-
-// Encode function (giống backend decode)
-function encodeToken(obj) {
-    const json = JSON.stringify(obj);
-    const base64 = btoa(json);
-    return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
-
-btnGen.addEventListener("click", async () => {
-
-    const url = mp4Input.value.trim();
-    const img = imgInput.value.trim();
-
-    if (!url) {
-        alert("Please enter MP4 URL");
-        return;
-    }
-
-    const tokenObj = {
-        u: url + (img ? "&img=" + img : "")
-    };
-
-    const token = encodeToken(tokenObj);
-
-    // Gọi API Vercel
-    const res = await fetch("/api/tool?url=" + encodeURIComponent(token));
-    const data = await res.json();
-
-    if (!data.ok) {
-        alert(data.error || "Error");
-        return;
-    }
-
-    const iframe = `<iframe 
-        src="/player?url=${encodeURIComponent(token)}"
-        width="100%" 
-        height="500" 
-        frameborder="0" 
-        allowfullscreen>
-    </iframe>`;
-
-    output.value = iframe;
-
-});
-
-btnCopy.addEventListener("click", () => {
-
-    output.select();
-    document.execCommand("copy");
-
-    btnCopy.innerText = "Copied ✓";
-
-    setTimeout(() => {
-        btnCopy.innerText = "Copy";
-    }, 1500);
-
-});
-
-btnReset.addEventListener("click", () => {
-
-    mp4Input.value = "";
-    imgInput.value = "";
-    output.value = "";
-
-});
-
-</script>
+<script src="/videos/tool.js"></script>
 
 </body>
 </html>
