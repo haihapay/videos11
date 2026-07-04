@@ -1,4 +1,5 @@
-export default function handler(req, res) {
+module.exports = function (req, res) {
+
     try {
 
         res.setHeader("Access-Control-Allow-Origin", "*");
@@ -11,89 +12,61 @@ export default function handler(req, res) {
 
         const token = req.query.url;
 
-        if (!token || typeof token !== "string") {
-            return res.status(400).json({
-                ok: false,
-                error: "Missing token"
-            });
+        if (!token) {
+            return res.status(400).json({ ok: false, error: "missing token" });
         }
 
-        // ===== Decode Base64 URL-safe =====
         let decoded = "";
 
         try {
             const base64 = token.replace(/-/g, "+").replace(/_/g, "/");
             decoded = Buffer.from(base64, "base64").toString("utf8");
         } catch (e) {
-            return res.status(400).json({
-                ok: false,
-                error: "Decode failed"
-            });
+            return res.status(400).json({ ok: false, error: "decode fail" });
         }
 
-        let videoUrl = "";
+        let url = "";
         let image = "";
 
         try {
 
-            // ===== CASE 1: JSON TOKEN =====
-            if (decoded.trim().startsWith("{")) {
+            if (decoded && decoded[0] === "{") {
 
                 const obj = JSON.parse(decoded);
 
-                videoUrl = obj.u || obj.url || "";
+                url = obj.u || obj.url || "";
                 image = obj.img || obj.image || "";
 
             } else {
 
-                // ===== CASE 2: RAW URL + &img =====
-                const imgIndex = decoded.indexOf("&img=");
+                const i = decoded.indexOf("&img=");
 
-                if (imgIndex !== -1) {
-
-                    image = decoded.substring(imgIndex + 5);
-                    videoUrl = decoded.substring(0, imgIndex);
-
+                if (i !== -1) {
+                    image = decoded.substring(i + 5);
+                    url = decoded.substring(0, i);
                 } else {
-                   let videoUrl = decoded;
-let image = "";
-
-// 🔥 MUST: tách img trước khi return
-const imgIndex = videoUrl.indexOf("&img=");
-
-if (imgIndex !== -1) {
-
-    image = videoUrl.substring(imgIndex + 5);
-    videoUrl = videoUrl.substring(0, imgIndex);
-
-}
+                    url = decoded;
                 }
             }
 
         } catch (e) {
-            return res.status(400).json({
-                ok: false,
-                error: "Invalid JSON"
-            });
+            return res.status(400).json({ ok: false, error: "parse fail" });
         }
 
-        if (!videoUrl) {
-            return res.status(400).json({
-                ok: false,
-                error: "Empty video url"
-            });
+        if (!url) {
+            return res.status(400).json({ ok: false, error: "empty url" });
         }
 
         return res.status(200).json({
             ok: true,
-            url: videoUrl,
-            image: image
+            url,
+            image
         });
 
     } catch (err) {
         return res.status(500).json({
             ok: false,
-            error: err.message || "Server error"
+            error: err.message
         });
     }
-}
+};
