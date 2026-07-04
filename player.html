@@ -11,36 +11,69 @@
 <video id="video" controls autoplay style="width:100%;height:100%"></video>
 
 <script>
-function decodeToken(token) {
-    const base64 = token.replace(/-/g, "+").replace(/_/g, "/");
-    const json = atob(base64);
-    return JSON.parse(json);
-}
+(function () {
 
-const params = new URLSearchParams(location.search);
-const token = params.get("url");
-
-if (!token) {
-    document.body.innerHTML = "Missing video";
-} else {
-
-    try {
-
-        const data = decodeToken(token);
-
-        const url = data.u || data.url;
-
-        if (!url) {
-            document.body.innerHTML = "Invalid video url";
-        } else {
-            document.getElementById("video").src = url;
+    function decode(token) {
+        try {
+            const base64 = token.replace(/-/g, "+").replace(/_/g, "/");
+            const json = atob(base64);
+            return JSON.parse(json);
+        } catch (e) {
+            return null;
         }
-
-    } catch (e) {
-        document.body.innerHTML = "Decode error: " + e.message;
     }
 
-}
+    const params = new URLSearchParams(location.search);
+    const token = params.get("url");
+
+    const video = document.querySelector("video");
+
+    if (!video) {
+        document.body.innerHTML = "Video tag not found";
+        return;
+    }
+
+    if (!token) {
+        document.body.innerHTML = "Missing token";
+        return;
+    }
+
+    const data = decode(token);
+
+    if (!data) {
+        document.body.innerHTML = "Decode error";
+        return;
+    }
+
+    const url = data.u || data.url;
+    const image = data.img || data.image || "";
+
+    if (!url) {
+        document.body.innerHTML = "Missing video URL";
+        return;
+    }
+
+    console.log("VIDEO:", url);
+    console.log("POSTER:", image);
+
+    // set video
+    video.src = url;
+
+    // poster
+    if (image) {
+        video.poster = image;
+    }
+
+    // error handler (quan trọng)
+    video.onerror = () => {
+        document.body.innerHTML = `
+            <h3>Unable to load video</h3>
+            <p>Video may be blocked by host or not direct MP4</p>
+            <p style="word-break:break-all">${url}</p>
+        `;
+    };
+
+})();
 </script>
 
 </body>
