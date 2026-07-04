@@ -20,7 +20,7 @@ module.exports = function (req, res) {
             });
         }
 
-        // ===== DECODE BASE64 URL SAFE =====
+        // ===== BASE64 DECODE =====
         let decoded = "";
 
         try {
@@ -38,18 +38,21 @@ module.exports = function (req, res) {
 
         try {
 
-            // ===== CASE 1: JSON TOKEN =====
+            // =========================
+            // CASE 1: JSON TOKEN
+            // =========================
             if (decoded && decoded.trim().startsWith("{")) {
 
                 const obj = JSON.parse(decoded);
 
                 videoUrl = obj.u || obj.url || "";
-
-                // ưu tiên JSON image
                 image = obj.img || obj.image || "";
 
-            } 
-            // ===== CASE 2: RAW URL =====
+            }
+
+            // =========================
+            // CASE 2: RAW URL + &img=
+            // =========================
             else {
 
                 const imgIndex = decoded.indexOf("&img=");
@@ -74,7 +77,7 @@ module.exports = function (req, res) {
             });
         }
 
-        // ===== VALIDATE =====
+        // ===== VALIDATION =====
         if (!videoUrl) {
             return res.status(400).json({
                 ok: false,
@@ -82,7 +85,7 @@ module.exports = function (req, res) {
             });
         }
 
-        // ===== CLEAN URL (optional safety) =====
+        // ===== CLEANUP =====
         videoUrl = videoUrl.trim();
         image = image.trim();
 
@@ -96,7 +99,7 @@ module.exports = function (req, res) {
 
         return res.status(500).json({
             ok: false,
-            error: err.message || "Server error"
+            error: err.message || "Server crash"
         });
 
     }
