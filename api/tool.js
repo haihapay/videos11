@@ -18,8 +18,9 @@ export default function handler(req, res) {
             });
         }
 
-        // Decode Base64 URL-safe
+        // ===== Decode Base64 URL-safe =====
         let decoded = "";
+
         try {
             const base64 = token.replace(/-/g, "+").replace(/_/g, "/");
             decoded = Buffer.from(base64, "base64").toString("utf8");
@@ -35,7 +36,7 @@ export default function handler(req, res) {
 
         try {
 
-            // JSON token
+            // ===== CASE 1: JSON TOKEN =====
             if (decoded.trim().startsWith("{")) {
 
                 const obj = JSON.parse(decoded);
@@ -45,12 +46,14 @@ export default function handler(req, res) {
 
             } else {
 
-                // raw url + optional &img=
-                const pos = decoded.indexOf("&img=");
+                // ===== CASE 2: RAW URL + &img =====
+                const imgIndex = decoded.indexOf("&img=");
 
-                if (pos !== -1) {
-                    image = decoded.substring(pos + 5);
-                    videoUrl = decoded.substring(0, pos);
+                if (imgIndex !== -1) {
+
+                    image = decoded.substring(imgIndex + 5);
+                    videoUrl = decoded.substring(0, imgIndex);
+
                 } else {
                     videoUrl = decoded;
                 }
