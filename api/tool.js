@@ -2,6 +2,7 @@ module.exports = function (req, res) {
 
     try {
 
+        // ===== CORS =====
         res.setHeader("Access-Control-Allow-Origin", "*");
         res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", "*");
@@ -12,61 +13,91 @@ module.exports = function (req, res) {
 
         const token = req.query.url;
 
-        if (!token) {
-            return res.status(400).json({ ok: false, error: "missing token" });
+        if (!token || typeof token !== "string") {
+            return res.status(400).json({
+                ok: false,
+                error: "Missing token"
+            });
         }
 
+        // ===== DECODE BASE64 URL SAFE =====
         let decoded = "";
 
         try {
             const base64 = token.replace(/-/g, "+").replace(/_/g, "/");
             decoded = Buffer.from(base64, "base64").toString("utf8");
         } catch (e) {
-            return res.status(400).json({ ok: false, error: "decode fail" });
+            return res.status(400).json({
+                ok: false,
+                error: "Decode failed"
+            });
         }
 
-        let url = "";
+        let videoUrl = "";
         let image = "";
 
         try {
 
-            if (decoded && decoded[0] === "{") {
+            // ===== CASE 1: JSON TOKEN =====
+            if (decoded && decoded.trim().startsWith("{")) {
 
                 const obj = JSON.parse(decoded);
 
-                url = obj.u || obj.url || "";
+                videoUrl = obj.u || obj.url || "";
+
+                // ưu tiên JSON image
                 image = obj.img || obj.image || "";
 
-            } else {
+            } 
+            // ===== CASE 2: RAW URL =====
+            else {
 
-                const i = decoded.indexOf("&img=");
+                const imgIndex = decoded.indexOf("&img=");
 
-                if (i !== -1) {
-                    image = decoded.substring(i + 5);
-                    url = decoded.substring(0, i);
+                if (imgIndex !== -1) {
+
+                    videoUrl = decoded.substring(0, imgIndex);
+                    image = decoded.substring(imgIndex + 5);
+
                 } else {
-                    url = decoded;
+
+                    videoUrl = decoded;
+                    image = "";
+
                 }
             }
 
         } catch (e) {
-            return res.status(400).json({ ok: false, error: "parse fail" });
+            return res.status(400).json({
+                ok: false,
+                error: "Parse error"
+            });
         }
 
-        if (!url) {
-            return res.status(400).json({ ok: false, error: "empty url" });
+        // ===== VALIDATE =====
+        if (!videoUrl) {
+            return res.status(400).json({
+                ok: false,
+                error: "Empty video url"
+            });
         }
+
+        // ===== CLEAN URL (optional safety) =====
+        videoUrl = videoUrl.trim();
+        image = image.trim();
 
         return res.status(200).json({
             ok: true,
-            url,
-            image
+            url: videoUrl,
+            image: image
         });
 
     } catch (err) {
+
         return res.status(500).json({
             ok: false,
-            error: err.message
+            error: err.message || "Server error"
         });
+
     }
 };
