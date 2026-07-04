@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Video Player Generator</title>
+
+<link rel="stylesheet" href="/css/style.css">
+
+</head>
+
+<body class="tool-page">
+
+<div class="box">
+
+    <h2>🎬 Video Player Generator</h2>
+
+    <div class="form-group">
+
+        <label for="mp4">
+            MP4 Video URL
+        </label>
+
+        <input
+            id="mp4"
+            type="text"
+            placeholder="https://example.com/video.mp4">
+
+    </div>
+
+    <div class="form-group">
+
+        <label for="img">
+            Poster Image URL (Optional)
+        </label>
+
+        <input
+            id="img"
+            type="text"
+            placeholder="https://example.com/poster.jpg">
+
+    </div>
+
+    <div class="buttons">
+
+        <button
+            id="btnGen"
+            class="gen">
+
+            Generate
+
+        </button>
+
+        <button
+            id="btnCopy"
+            class="copy">
+
+            Copy
+
+        </button>
+
+        <button
+            id="btnReset"
+            class="reset">
+
+            Reset
+
+        </button>
+
+    </div>
+
+    <div class="result">
+
+        <label for="output">
+
+            Embed Code
+
+        </label>
+
+        <textarea
+            id="output"
+            readonly
+            spellcheck="false"
+            placeholder="Generated iframe code will appear here..."></textarea>
+
+    </div>
+
+</div>
+
+<script src="/videos/tool.js"></script>
+
+</body>
+
+</html>
