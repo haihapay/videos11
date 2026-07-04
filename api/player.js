@@ -1,62 +1,29 @@
 (function () {
 
     const params = new URLSearchParams(location.search);
-    const token = params.get("url");
+
+    const url = params.get("url");
+    const img = params.get("img");
 
     const video = document.querySelector("video");
 
-    if (!video) {
-        document.body.innerHTML = "Video element not found";
-        return;
-    }
-
-    if (!token) {
-        document.body.innerHTML = "Missing token";
-        return;
-    }
-
-    function decode(token) {
-        try {
-            const base64 = token.replace(/-/g, "+").replace(/_/g, "/");
-            const json = atob(base64);
-            return JSON.parse(json);
-        } catch (e) {
-            return null;
-        }
-    }
-
-    const data = decode(token);
-
-    if (!data) {
-        document.body.innerHTML = "Decode error";
-        return;
-    }
-
-    const url = data.u || data.url;
-    const image = data.img || data.image || "";
+    if (!video) return;
 
     if (!url) {
-        document.body.innerHTML = "Missing video url";
+        document.body.innerHTML = "Missing video URL";
         return;
     }
 
-    console.log("VIDEO:", url);
-    console.log("IMAGE:", image);
-
-    // ===== SET VIDEO =====
     video.src = url;
 
-    // ===== SET POSTER =====
-    if (image) {
-        video.poster = image;
+    if (img) {
+        video.poster = img;
     }
 
-    // ===== ERROR HANDLING =====
     video.onerror = () => {
         document.body.innerHTML = `
             <h3>Unable to load video</h3>
-            <p>Host may block direct playback or not allow embedding.</p>
-            <p style="word-break:break-all">${url}</p>
+            <p>${url}</p>
         `;
     };
 
