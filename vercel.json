@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/player",
+      "destination": "/api/player"
+    },
+    {
+      "source": "/video",
+      "destination": "/api/video"
+    }
+  ]
+}
