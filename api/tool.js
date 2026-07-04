@@ -1,35 +1,31 @@
-module.exports = async (req, res) => {
+export default function handler(req, res) {
 
     try {
-
-        res.setHeader("Access-Control-Allow-Origin", "*");
 
         const token = req.query.url;
 
         if (!token) {
-            return res.status(400).json({ ok: false, error: "missing token" });
+            return res.status(400).send("missing token");
         }
 
-        let decoded;
+        let decoded = "";
 
         try {
             const base64 = token.replace(/-/g, "+").replace(/_/g, "/");
             decoded = Buffer.from(base64, "base64").toString("utf8");
         } catch (e) {
-            return res.status(400).json({ ok: false, error: "decode fail" });
+            return res.status(400).send("decode error");
         }
 
-        let url = "";
+        let url = decoded;
 
         try {
             if (decoded && decoded[0] === "{") {
                 const obj = JSON.parse(decoded);
                 url = obj.u || obj.url || "";
-            } else {
-                url = decoded;
             }
         } catch (e) {
-            return res.status(400).json({ ok: false, error: "json fail" });
+            return res.status(400).send("json error");
         }
 
         return res.status(200).json({
@@ -37,10 +33,7 @@ module.exports = async (req, res) => {
             url
         });
 
-    } catch (err) {
-        return res.status(500).json({
-            ok: false,
-            error: err.message || "crash"
-        });
+    } catch (e) {
+        return res.status(500).send("server crash: " + e.message);
     }
-};
+}
